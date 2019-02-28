@@ -22,6 +22,7 @@ namespace EditeurRythme
         private SoundPlayer currentSong = null;
         private int secondsElapsed;
         private int elapsedBPM;
+        private int intervalsByBPM;
 
         private string musicLine = ""; //utiliser StringBuilder?
         private string rythmLine = "";
@@ -45,6 +46,7 @@ namespace EditeurRythme
 
         private void Form2_Load(object sender, EventArgs e)
         {
+            intervalsByBPM = 4;
             lblTitle.Text = currentFile;
             currentSong = new SoundPlayer(currentFileDirectory);
             currentSong.Load();
@@ -57,7 +59,7 @@ namespace EditeurRythme
             lblSpace.Visible = false;
 
             double secFromBpm = 60000 / (double)bpm;
-            timerBPM.Interval = secFromBpm / 4; //TODO vérifs
+            timerBPM.Interval = secFromBpm / intervalsByBPM; //TODO vérifs
             //  /1 = demi-seconde, /2= quart-seconde, /4= huitième-seconde
 
 
@@ -225,7 +227,7 @@ namespace EditeurRythme
             SongDTO file = new SongDTO();
             file.Name = currentFile;
             file.BPM = bpm;
-
+            file.IntervalsByBPM = intervalsByBPM;
             file.MusicLine = musicTempoList.ToArray<int>();
             file.RythmLine = rythmTempoList.ToArray<int>();
 
