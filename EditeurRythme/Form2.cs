@@ -58,7 +58,9 @@ namespace EditeurRythme
             rtbRythmLine.Enabled = false;
             lblSpace.Visible = false;
 
+            // double secFromBpm = 60000(nombre de milisecondes dans une minute) / ex:112 (les bpm de la musique choisie);
             double secFromBpm = 60000 / (double)bpm;
+            //timerBPM.Interval(le nombre de millisecondes entre chaque incrémentation du timer) = secFromBpm / intervalsByBPM(le nombre d'intervalles dans un temps)
             timerBPM.Interval = secFromBpm / intervalsByBPM; //TODO vérifs
             //  /1 = demi-seconde, /2= quart-seconde, /4= huitième-seconde
 
