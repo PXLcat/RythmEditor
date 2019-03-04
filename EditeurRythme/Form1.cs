@@ -51,7 +51,8 @@ namespace EditeurRythme
                 frm2.currentFile = currentFile;
                 frm2.currentFileDirectory = currentFileDirectory;
                 frm2.bpm = (int)nudBPM.Value;
-                frm2.Show();
+                frm2.intervalsByBPM = (int)nudIntervals.Value;
+                frm2.Show(); 
             }
         }
     }

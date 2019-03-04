@@ -19,17 +19,18 @@ namespace EditeurRythme
         public string currentFile;
         public string currentFileDirectory;
         public int bpm;
+        public int intervalsByBPM;
         private SoundPlayer currentSong = null;
         private int secondsElapsed;
         private int elapsedBPM;
-        private int intervalsByBPM;
+        
 
         private string musicLine = ""; //utiliser StringBuilder?
         private string rythmLine = "";
         private int currentEdit = 1; //0= nothing, 1=music, 2= rythm
 
-        List<int> musicTempoList = new List<int>();
-        List<int> rythmTempoList = new List<int>();
+        //List<int> musicTempoList = new List<int>();
+        //List<int> rythmTempoList = new List<int>();
 
 
         StringBuilder sbMusic = new StringBuilder();
@@ -46,7 +47,6 @@ namespace EditeurRythme
 
         private void Form2_Load(object sender, EventArgs e)
         {
-            intervalsByBPM = 4;
             lblTitle.Text = currentFile;
             currentSong = new SoundPlayer(currentFileDirectory);
             currentSong.Load();
@@ -72,7 +72,7 @@ namespace EditeurRythme
 
         private void btnPlay_Click(object sender, EventArgs e)
         {
-             currentSong.Play();
+            currentSong.Play();
             timerSeconds.Enabled = true;
             timerBPM.Enabled = true;
             lblSpace.Visible = true;
@@ -86,8 +86,8 @@ namespace EditeurRythme
             secondsElapsed = 0;
             timerSeconds.Stop();
             timerBPM.Enabled = false;
-            elapsedBPM = 0;
             timerBPM.Stop();
+            elapsedBPM = 0;
             lblSpace.Visible = false;
 
             lblTimeSeconds.Text = timeDisplay();
@@ -153,7 +153,7 @@ namespace EditeurRythme
                 sbMusic.Append("\n");
                 rtb.Text = sbMusic.ToString(); //TODO besoin de séparer entre rtbMusic et rtbRythm ?
 
-                musicTempoList.Add(elapsedBPM); //TODO attention, l'édit de la rtb ne changera pas ce qui sera envoyé dans le json. Il faut que ce qui est dans la rtb soit sauvé à l'enregistrement et pas le tempo direct
+                //musicTempoList.Add(elapsedBPM); //TODO attention, l'édit de la rtb ne changera pas ce qui sera envoyé dans le json. Il faut que ce qui est dans la rtb soit sauvé à l'enregistrement et pas le tempo direct
 
             }
 
@@ -163,7 +163,7 @@ namespace EditeurRythme
                 sbRythm.Append("\n");
                 rtb.Text = sbRythm.ToString(); //TODO besoin de séparer entre rtbMusic et rtbRythm ?
 
-                rythmTempoList.Add(elapsedBPM);
+                //rythmTempoList.Add(elapsedBPM);
             }
 
             rtb.Invalidate();
@@ -198,11 +198,13 @@ namespace EditeurRythme
         private void btnClearMusic_Click(object sender, EventArgs e)
         {
             sbMusic.Clear();
+            rtbMusicLine.Clear();
         }
 
         private void btnClearRythm_Click(object sender, EventArgs e)
         {
             sbRythm.Clear();
+            rtbRythmLine.Clear();
         }
 
         private void btnExportMusic_Click(object sender, EventArgs e)
@@ -230,15 +232,46 @@ namespace EditeurRythme
             file.Name = currentFile;
             file.BPM = bpm;
             file.IntervalsByBPM = intervalsByBPM;
-            file.MusicLine = musicTempoList.ToArray<int>();
-            file.RythmLine = rythmTempoList.ToArray<int>();
-
-            //JsonSerializer serializer = new JsonSerializer();
-            //(SongDTO)serializer
-            
 
 
-            File.WriteAllText(saveFileDialog1.FileName, JsonConvert.SerializeObject(file,Formatting.Indented));
+            List<int> musicBeatsList = new List<int>();
+            List<int> rythmBeatsList = new List<int>();
+
+            foreach (string line in rtbMusicLine.Lines)
+            {
+                if (!String.IsNullOrWhiteSpace(line))
+                {
+                    bool success = Int32.TryParse(line, out int beat);
+                    if (success)
+                    {
+                        musicBeatsList.Add(beat);
+                    }
+                    else
+                    {
+                        MessageBox.Show("One of the lines cannot be converted to a number");
+                    }
+                }
+            }
+            foreach (string line in rtbRythmLine.Lines)
+            {
+                if (!String.IsNullOrWhiteSpace(line))
+                {
+                    bool success = Int32.TryParse(line, out int beat);
+                    if (success)
+                    {
+                        rythmBeatsList.Add(beat);
+                    }
+                    else
+                    {
+                        MessageBox.Show("One of the lines cannot be converted to a number");
+                    }
+                }
+            }
+
+            file.MusicLine = musicBeatsList.ToArray<int>();
+            file.RythmLine = rythmBeatsList.ToArray<int>();
+
+            File.WriteAllText(saveFileDialog1.FileName, JsonConvert.SerializeObject(file, Formatting.Indented));
         }
     }
 }
